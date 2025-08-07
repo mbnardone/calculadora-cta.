@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Costo Total de Aceptar Pagos (CTA)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .input-cell {
+            background-color: #fffbeb; /* yellow-50 */
+            border-color: #fde047; /* yellow-300 */
+        }
+        .result-cell {
+            background-color: #f0fdf4; /* green-50 */
+            font-weight: 600;
+        }
+        .total-result {
+            background-color: #dcfce7; /* green-200 */
+            font-weight: 700;
+        }
+        .header-cell {
+            background-color: #1e3a8a; /* blue-900 */
+            color: white;
+        }
+        input[type="number"] {
+            text-align: right;
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+        }
+        input[type="number"]:focus {
+            outline: 2px solid #3b82f6;
+            border-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-6 md:p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Calculadora de Costo Total (CTA)</h1>
+        <p class="text-gray-600 mb-6">Completa las celdas amarillas con los datos de tu comercio y los de la competencia para comparar el costo real.</p>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full border-collapse" id="cta-table">
+                <thead>
+                    <tr>
+                        <th class="header-cell p-3 text-left text-sm font-semibold rounded-tl-lg">Concepto</th>
+                        <th class="header-cell p-3 text-center text-sm font-semibold">Mercado Pago</th>
+                        <th class="header-cell p-3 text-center text-sm font-semibold rounded-tr-lg">Competidor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Datos de Entrada -->
+                    <tr class="bg-gray-200">
+                        <td class="p-3 font-semibold text-gray-700" colspan="3">Datos de Entrada</td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3 text-gray-700">Monto de la Venta ($)</td>
+                        <td class="p-2"><input type="number" class="input-cell" id="monto-mp" value="10000"></td>
+                        <td class="p-2"><input type="number" class="input-cell" id="monto-comp" value="10000"></td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3 text-gray-700">Comisión por Venta (%)</td>
+                        <td class="p-2"><input type="number" class="input-cell" id="comision-mp" value="2.99" step="0.01"></td>
+                        <td class="p-2"><input type="number" class="input-cell" id="comision-comp" value="2.99" step="0.01"></td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3 text-gray-700">Tasa de Financiación (%)</td>
+                        <td class="p-2"><input type="number" class="input-cell" id="financiacion-mp" value="9.7" step="0.1"></td>
+                        <td class="p-2"><input type="number" class="input-cell" id="financiacion-comp" value="8.9" step="0.1"></td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3 text-gray-700">Cargo por Motor de Fraude (%)</td>
+                        <td class="p-2"><input type="number" class="input-cell" id="fraude-mp" value="0.0" step="0.1"></td>
+                        <td class="p-2"><input type="number" class="input-cell" id="fraude-comp" value="0.5" step="0.1"></td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3 text-gray-700">Pérdida por Contracargo (%)</td>
+                        <td class="p-2"><input type="number" class="input-cell" id="contracargo-mp" value="0.0" step="0.1"></td>
+                        <td class="p-2"><input type="number" class="input-cell" id="contracargo-comp" value="0.4" step="0.1"></td>
+                    </tr>
+                     <tr class="border-b">
+                        <td class="p-3 text-gray-700">Plazo de Liberación (días)</td>
+                        <td class="p-2"><input type="number" class="input-cell" id="liberacion-mp" value="2"></td>
+                        <td class="p-2"><input type="number" class="input-cell" id="liberacion-comp" value="10"></td>
+                    </tr>
+                    
+                    <!-- Resultados Calculados -->
+                     <tr class="bg-gray-200">
+                        <td class="p-3 font-semibold text-gray-700" colspan="3">Resultados Calculados</td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3 font-bold text-gray-900">COSTO TOTAL (CTA) en %</td>
+                        <td class="p-3 text-right total-result" id="cta-porc-mp"></td>
+                        <td class="p-3 text-right total-result" id="cta-porc-comp"></td>
+                    </tr>
+                    <tr class="border-b">
+                        <td class="p-3 font-bold text-gray-900">COSTO TOTAL (CTA) en $</td>
+                        <td class="p-3 text-right total-result" id="cta-pesos-mp"></td>
+                        <td class="p-3 text-right total-result" id="cta-pesos-comp"></td>
+                    </tr>
+                    
+                    <!-- Conclusión -->
+                    <tr class="bg-blue-100">
+                        <td class="p-4 font-bold text-blue-800 text-lg">Ahorro Total con Mercado Pago ($)</td>
+                        <td class="p-4 text-right font-bold text-blue-800 text-lg" colspan="2" id="ahorro-total"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Función para formatear números como moneda
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(value);
+        };
+
+        // Función principal para calcular todos los valores
+        function calculateCTA() {
+            // Obtener todos los valores de los inputs
+            const inputs = {
+                mp: {
+                    monto: parseFloat(document.getElementById('monto-mp').value) || 0,
+                    comision: parseFloat(document.getElementById('comision-mp').value) / 100 || 0,
+                    financiacion: parseFloat(document.getElementById('financiacion-mp').value) / 100 || 0,
+                    fraude: parseFloat(document.getElementById('fraude-mp').value) / 100 || 0,
+                    contracargo: parseFloat(document.getElementById('contracargo-mp').value) / 100 || 0,
+                },
+                comp: {
+                    monto: parseFloat(document.getElementById('monto-comp').value) || 0,
+                    comision: parseFloat(document.getElementById('comision-comp').value) / 100 || 0,
+                    financiacion: parseFloat(document.getElementById('financiacion-comp').value) / 100 || 0,
+                    fraude: parseFloat(document.getElementById('fraude-comp').value) / 100 || 0,
+                    contracargo: parseFloat(document.getElementById('contracargo-comp').value) / 100 || 0,
+                }
+            };
+
+            // Calcular CTA en porcentaje (fórmula simplificada)
+            const ctaPorcMp = inputs.mp.comision + inputs.mp.financiacion + inputs.mp.fraude + inputs.mp.contracargo;
+            const ctaPorcComp = inputs.comp.comision + inputs.comp.financiacion + inputs.comp.fraude + inputs.comp.contracargo;
+
+            // Calcular CTA en pesos
+            const ctaPesosMp = inputs.mp.monto * ctaPorcMp;
+            const ctaPesosComp = inputs.comp.monto * ctaPorcComp;
+            
+            // Calcular Ahorro Total
+            const ahorroTotal = ctaPesosComp - ctaPesosMp;
+
+            // Actualizar la tabla con los resultados formateados
+            document.getElementById('cta-porc-mp').textContent = (ctaPorcMp * 100).toFixed(2) + '%';
+            document.getElementById('cta-pesos-mp').textContent = formatCurrency(ctaPesosMp);
+
+            document.getElementById('cta-porc-comp').textContent = (ctaPorcComp * 100).toFixed(2) + '%';
+            document.getElementById('cta-pesos-comp').textContent = formatCurrency(ctaPesosComp);
+            
+            document.getElementById('ahorro-total').textContent = formatCurrency(ahorroTotal);
+        }
+
+        // Añadir event listeners a todos los inputs para recalcular al cambiar
+        const inputElements = document.querySelectorAll('#cta-table input');
+        inputElements.forEach(input => {
+            input.addEventListener('input', calculateCTA);
+        });
+
+        // Calcular los valores iniciales al cargar la página
+        window.addEventListener('load', calculateCTA);
+    </script>
+</body>
+</html>
